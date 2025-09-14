@@ -9,7 +9,10 @@ const tenantRoutes = require('./routes/tenants');
 
 const app = express();
 
-app.use(cors()); 
+app.use(cors({
+  origin: "https://note-sphere-woad.vercel.app",
+}));
+
 app.use(express.json());
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
