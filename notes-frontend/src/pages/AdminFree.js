@@ -31,19 +31,23 @@ function AdminFree({ setToken }) {
   }, []);
 
   useEffect(() => {
-  if (tenantPlan === "pro") return; 
+    if (tenantPlan === "pro") return;
   }, [tenantPlan]);
-
 
   const addNote = async () => {
     if (!newTitle || !newContent) return;
     if (notes.length >= 3) {
-      setMessage("Free Plan limit reached! Upgrade to Pro for unlimited notes.");
+      setMessage(
+        "Free Plan limit reached! Upgrade to Pro for unlimited notes."
+      );
       setTimeout(() => setMessage(""), 3000);
       return;
     }
     try {
-      const res = await api.post("/notes", { title: newTitle, content: newContent });
+      const res = await api.post("/notes", {
+        title: newTitle,
+        content: newContent,
+      });
       setNotes([res.data, ...notes]);
       setNewTitle("");
       setNewContent("");
@@ -64,29 +68,28 @@ function AdminFree({ setToken }) {
     }
   };
 
-// ...
+  const upgradePlan = async () => {
+    if (tenantPlan === "pro") return;
+    setLoadingUpgrade(true);
+    setMessage("");
 
-const upgradePlan = async () => {
-  if (tenantPlan === "pro") return; 
-  setLoadingUpgrade(true);
-  setMessage("");
+    try {
+      const res = await api.post(`/tenants/${user.tenant}/upgrade`);
+      setTenantPlan(res.data.tenant.plan);
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ ...user, plan: res.data.tenant.plan })
+      );
 
-  try {
-    const res = await api.post(`/tenants/${user.tenant}/upgrade`);
-    const newPlan = res.data.tenant.plan;
-
-    setTimeout(() => {
-      setTenantPlan(newPlan);
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 4000);
       setMessage("🎉 Upgraded to Pro! 🎉");
+    } catch (err) {
+      setMessage(err.response?.data?.error || "Upgrade failed");
+    } finally {
       setLoadingUpgrade(false);
-    }, 2000);
-  } catch (err) {
-    setMessage(err.response?.data?.error || "Upgrade failed");
-    setLoadingUpgrade(false);
-  }
-};
+    }
+  };
 
   const logout = () => {
     setToken(null);
@@ -95,17 +98,18 @@ const upgradePlan = async () => {
 
   return (
     <div className={styles.container}>
-        {showConfetti && <Confetti recycle={false} numberOfPieces={200} gravity={0.3} />}
+      {showConfetti && (
+        <Confetti recycle={false} numberOfPieces={200} gravity={0.3} />
+      )}
       {loadingUpgrade && (
-  <div className={styles.overlay}>
-    <div className={styles.processingBox}>
-      <div className={styles.spinner}></div>
-      <p>Processing your request...</p>
-      <p>Upgrading to Pro...</p>
-    </div>
-  </div>
-)}
-
+        <div className={styles.overlay}>
+          <div className={styles.processingBox}>
+            <div className={styles.spinner}></div>
+            <p>Processing your request...</p>
+            <p>Upgrading to Pro...</p>
+          </div>
+        </div>
+      )}
 
       <header className={styles.header}>
         <h1>Admin Dashboard</h1>

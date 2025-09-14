@@ -7,27 +7,29 @@ export const TenantProvider = ({ token, user, children }) => {
   const [tenantPlan, setTenantPlan] = useState(null);
   const [loadingTenant, setLoadingTenant] = useState(true);
 
-useEffect(() => {
-  if (!token || !user?.tenant) {
-    setTenantPlan("free");
-    setLoadingTenant(false);
-    return;
-  }
-
-  const fetchTenant = async () => {
-    try {
-      const res = await api.get(`/tenants/${user.tenant}`);
-      setTenantPlan(res.data.plan || "free"); 
-    } catch (err) {
-      console.error("Failed to fetch tenant plan:", err);
-      setTenantPlan("free"); 
-    } finally {
-      setLoadingTenant(false); 
+  useEffect(() => {
+    if (!token || !user?.tenant) {
+      setTenantPlan('free');
+      setLoadingTenant(false);
+      return;
     }
-  };
 
-  fetchTenant();
-}, [token, user.tenant]);
+    const fetchTenant = async () => {
+      setLoadingTenant(true);
+      try {
+        const res = await api.get(`/tenants/${user.tenant}`);
+        setTenantPlan(res.data.tenant.plan || 'free');
+        localStorage.setItem('user', JSON.stringify({ ...user, plan: res.data.tenant.plan || 'free' }));
+      } catch (err) {
+        console.error('Failed to fetch tenant plan:', err);
+        setTenantPlan('free');
+      } finally {
+        setLoadingTenant(false);
+      }
+    };
+
+    fetchTenant();
+  }, [token, user, user.tenant]);
 
   return (
     <TenantContext.Provider value={{ tenantPlan, setTenantPlan, loadingTenant }}>
