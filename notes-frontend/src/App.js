@@ -21,31 +21,17 @@ function App() {
     <TenantProvider token={token} user={user}>
       <TenantContext.Consumer>
         {({ tenantPlan, loadingTenant }) => {
-          if (loadingTenant) {
-            return (
-              <div style={{ textAlign: "center", marginTop: 50 }}>
-                Loading tenant info...
-              </div>
-            );
-          }
-
-          if (!tenantPlan) {
-            return (
-              <p style={{ textAlign: "center" }}>Unable to load tenant plan.</p>
-            );
-          }
+          if (loadingTenant) return <div style={{ textAlign: "center", marginTop: 50 }}>Loading tenant info...</div>;
+          if (!tenantPlan) return <p style={{ textAlign: "center" }}>Unable to load tenant plan.</p>;
 
           return (
             <Routes>
-              {user.role === "admin" && tenantPlan === "pro" && (
-                <Route path="/*" element={<AdminPro setToken={setToken} />} />
+              {user.role === "admin" && (
+                tenantPlan === "pro" 
+                  ? <Route path="/*" element={<AdminPro setToken={setToken} />} />
+                  : <Route path="/*" element={<AdminFree setToken={setToken} />} />
               )}
-              {user.role === "admin" && tenantPlan === "free" && (
-                <Route path="/*" element={<AdminFree setToken={setToken} />} />
-              )}
-              {user.role !== "admin" && (
-                <Route path="/*" element={<Member setToken={setToken} />} />
-              )}
+              {user.role !== "admin" && <Route path="/*" element={<Member setToken={setToken} />} />}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           );

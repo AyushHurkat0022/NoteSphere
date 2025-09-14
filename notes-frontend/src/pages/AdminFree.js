@@ -4,7 +4,7 @@ import NoteItem from "../components/NoteItem";
 import Confetti from "react-confetti";
 import styles from "./AdminFree.module.css";
 import { TenantContext } from "../context/TenantContext";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 function AdminFree({ setToken }) {
   const [notes, setNotes] = useState([]);
@@ -14,7 +14,7 @@ function AdminFree({ setToken }) {
   const [loadingUpgrade, setLoadingUpgrade] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const { tenantPlan, setTenantPlan } = useContext(TenantContext);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
@@ -31,10 +31,9 @@ function AdminFree({ setToken }) {
   }, []);
 
   useEffect(() => {
-  if (tenantPlan === "pro") {
-    navigate("/admin-pro");
-  }
-}, [tenantPlan, navigate]);
+  if (tenantPlan === "pro") return; 
+  }, [tenantPlan]);
+
 
   const addNote = async () => {
     if (!newTitle || !newContent) return;
