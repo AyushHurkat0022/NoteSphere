@@ -15,7 +15,6 @@ function AdminFree({ setToken }) {
   const [showConfetti, setShowConfetti] = useState(false);
   const { tenantPlan, setTenantPlan } = useContext(TenantContext);
   const navigate = useNavigate();
-  const [loadingNotes, setLoadingNotes] = useState(true);
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
@@ -26,34 +25,26 @@ function AdminFree({ setToken }) {
         setNotes(res.data);
       } catch (err) {
         console.error(err);
-      } finally {
-        setLoadingNotes(false);
       }
     };
     fetchNotes();
   }, []);
 
   useEffect(() => {
-    if (!tenantPlan) return;
-    if (tenantPlan === "pro") {
-      navigate("/admin-pro");
-    }
-  }, [tenantPlan, navigate]);
+  if (tenantPlan === "pro") {
+    navigate("/admin-pro");
+  }
+}, [tenantPlan, navigate]);
 
   const addNote = async () => {
     if (!newTitle || !newContent) return;
     if (notes.length >= 3) {
-      setMessage(
-        "Free Plan limit reached! Upgrade to Pro for unlimited notes."
-      );
+      setMessage("Free Plan limit reached! Upgrade to Pro for unlimited notes.");
       setTimeout(() => setMessage(""), 3000);
       return;
     }
     try {
-      const res = await api.post("/notes", {
-        title: newTitle,
-        content: newContent,
-      });
+      const res = await api.post("/notes", { title: newTitle, content: newContent });
       setNotes([res.data, ...notes]);
       setNewTitle("");
       setNewContent("");
@@ -74,29 +65,29 @@ function AdminFree({ setToken }) {
     }
   };
 
-  // ...
+// ...
 
-  const upgradePlan = async () => {
-    if (tenantPlan === "pro") return;
-    setLoadingUpgrade(true);
-    setMessage("");
+const upgradePlan = async () => {
+  if (tenantPlan === "pro") return; 
+  setLoadingUpgrade(true);
+  setMessage("");
 
-    try {
-      const res = await api.post(`/tenants/${user.tenant}/upgrade`);
-      const newPlan = res.data.tenant.plan;
+  try {
+    const res = await api.post(`/tenants/${user.tenant}/upgrade`);
+    const newPlan = res.data.tenant.plan;
 
-      setTimeout(() => {
-        setTenantPlan(newPlan);
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 4000);
-        setMessage("🎉 Upgraded to Pro! 🎉");
-        setLoadingUpgrade(false);
-      }, 2000);
-    } catch (err) {
-      setMessage(err.response?.data?.error || "Upgrade failed");
+    setTimeout(() => {
+      setTenantPlan(newPlan);
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 4000);
+      setMessage("🎉 Upgraded to Pro! 🎉");
       setLoadingUpgrade(false);
-    }
-  };
+    }, 2000);
+  } catch (err) {
+    setMessage(err.response?.data?.error || "Upgrade failed");
+    setLoadingUpgrade(false);
+  }
+};
 
   const logout = () => {
     setToken(null);
@@ -105,18 +96,17 @@ function AdminFree({ setToken }) {
 
   return (
     <div className={styles.container}>
-      {showConfetti && (
-        <Confetti recycle={false} numberOfPieces={200} gravity={0.3} />
-      )}
+        {showConfetti && <Confetti recycle={false} numberOfPieces={200} gravity={0.3} />}
       {loadingUpgrade && (
-        <div className={styles.overlay}>
-          <div className={styles.processingBox}>
-            <div className={styles.spinner}></div>
-            <p>Processing your request...</p>
-            <p>Upgrading to Pro...</p>
-          </div>
-        </div>
-      )}
+  <div className={styles.overlay}>
+    <div className={styles.processingBox}>
+      <div className={styles.spinner}></div>
+      <p>Processing your request...</p>
+      <p>Upgrading to Pro...</p>
+    </div>
+  </div>
+)}
+
 
       <header className={styles.header}>
         <h1>Admin Dashboard</h1>
@@ -154,26 +144,17 @@ function AdminFree({ setToken }) {
             {message && <p className={styles.message}>{message}</p>}
           </section>
 
-          <section className={styles.section}>
-            {loadingNotes ? (
-              <p style={{ textAlign: "center", marginTop: 50 }}>
-                Loading notes...
-              </p>
-            ) : (
-              <>
-                <h2>Your Notes</h2>
-                <div className={styles["notes-grid-free"]}>
-                  {notes.map((n) => (
-                    <NoteItem
-                      key={n._id}
-                      note={n}
-                      onDelete={() => deleteNote(n._id)}
-                    />
-                  ))}
-                  {notes.length === 0 && <p>No notes yet. Add one above!</p>}
-                </div>
-              </>
-            )}
+          <section>
+            <h2>Your Notes</h2>
+            <div className={styles["notes-grid-free"]}>
+              {notes.map((n) => (
+                <NoteItem
+                  key={n._id}
+                  note={n}
+                  onDelete={() => deleteNote(n._id)}
+                />
+              ))}
+            </div>
           </section>
         </div>
 
