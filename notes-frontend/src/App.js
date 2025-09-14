@@ -4,7 +4,7 @@ import AdminPro from "./pages/AdminPro";
 import Member from "./pages/Member";
 import AuthPage from "./pages/AuthPage";
 import { TenantProvider, TenantContext } from "./context/TenantContext";
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -21,7 +21,21 @@ function App() {
     <TenantProvider token={token} user={user}>
       <TenantContext.Consumer>
         {({ tenantPlan, loadingTenant }) => {
-          if (loadingTenant) return <p style={{ textAlign: "center", marginTop: 50 }}>Loading...</p>;
+          if (loadingTenant) {
+            // Show loading immediately
+            return (
+              <div style={{ textAlign: "center", marginTop: 50 }}>
+                Loading tenant info...
+              </div>
+            );
+          }
+
+          if (!tenantPlan) {
+            // Safety fallback
+            return (
+              <p style={{ textAlign: "center" }}>Unable to load tenant plan.</p>
+            );
+          }
 
           return (
             <Routes>
