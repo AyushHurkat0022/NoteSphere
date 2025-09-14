@@ -22,7 +22,6 @@ function App() {
       <TenantContext.Consumer>
         {({ tenantPlan, loadingTenant }) => {
           if (loadingTenant) {
-            // Show loading immediately
             return (
               <div style={{ textAlign: "center", marginTop: 50 }}>
                 Loading tenant info...
@@ -31,7 +30,6 @@ function App() {
           }
 
           if (!tenantPlan) {
-            // Safety fallback
             return (
               <p style={{ textAlign: "center" }}>Unable to load tenant plan.</p>
             );
